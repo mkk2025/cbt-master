@@ -1,0 +1,11 @@
+# RUDY (R U Dead Yet) vulnerable servers
+# Format: hostname (one per line)
+# These are servers vulnerable to slow POST attacks
+#
+# NOTE: These are EXAMPLE entries. Replace with actual vulnerable servers.
+# To find RUDY-vulnerable servers, test with: ./ufonet --test-rudy <URL>
+#
+# Example format (DO NOT USE THESE - THEY ARE PLACEHOLDERS):
+# https://example.com
+# http://test.example.org
+# https://vulnerable-site.net

@@ -1,0 +1,13 @@
+{
+    "rproxy": "",
+    "ruseragent": "Opera 7.51 (X11  SunOS sun4u  U) [de]",
+    "rreferer": "http:  127.0.0.1 ",
+    "rhost": "",
+    "rxforw": "on",
+    "rxclient": "on",
+    "rtimeout": "10",
+    "rretries": "1",
+    "rdelay": "0",
+    "threads": "5",
+    "rssl": ""
+}

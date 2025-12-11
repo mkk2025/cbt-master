@@ -1,0 +1,11 @@
+# Chargen amplification reflectors
+# Format: IP or hostname (one per line)
+# These are vulnerable Chargen services that can be used for amplification attacks
+#
+# NOTE: These are EXAMPLE entries. Replace with actual vulnerable services found through scanning.
+# To find vulnerable Chargen services, use: ./ufonet --scan-chargen <IP_RANGE>
+#
+# Example format (DO NOT USE THESE - THEY ARE PLACEHOLDERS):
+# 192.168.1.102
+# chargen.example.com
+# 10.0.0.52

@@ -1,0 +1,12 @@
+# SSDP amplification reflectors
+# Format: IP or hostname (one per line)
+# These are vulnerable SSDP devices that can be used for amplification attacks
+#
+# NOTE: These are EXAMPLE entries. Replace with actual vulnerable devices found through scanning.
+# To find vulnerable SSDP devices, use: ./ufonet --scan-ssdp <IP_RANGE>
+# Example: ./ufonet --scan-ssdp 192.168.1.0-192.168.1.255
+#
+# Example format (DO NOT USE THESE - THEY ARE PLACEHOLDERS):
+# 192.168.1.101
+# upnp.device.local
+# 10.0.0.51

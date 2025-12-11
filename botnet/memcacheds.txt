@@ -1,0 +1,12 @@
+# Memcached amplification reflectors
+# Format: IP or hostname (one per line)
+# These are vulnerable Memcached servers that can be used for amplification attacks
+# 
+# To populate this list with real vulnerable servers:
+# 1. Use Shodan: ./ufonet --shodan-memcached --shodan-key YOUR_KEY
+# 2. Use Censys: ./ufonet --censys-memcached --censys-id ID --censys-secret SECRET
+# 3. Use scanner: ./ufonet --scan-memcached <IP_RANGE>
+# 4. Use auto-discovery: ./ufonet --auto-discover memcached
+#
+# Publicly known test servers (for authorized testing only):
+# Note: Always verify you have authorization before using any server

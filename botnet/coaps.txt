@@ -1,0 +1,11 @@
+# CoAP amplification reflectors
+# Format: IP or hostname (one per line)
+# These are vulnerable CoAP devices that can be used for amplification attacks
+#
+# NOTE: These are EXAMPLE entries. Replace with actual vulnerable devices found through scanning.
+# To find vulnerable CoAP devices, use: ./ufonet --scan-coap <IP_RANGE>
+#
+# Example format (DO NOT USE THESE - THEY ARE PLACEHOLDERS):
+# 192.168.1.103
+# coap.device.local
+# 10.0.0.53
