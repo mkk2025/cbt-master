@@ -70,11 +70,20 @@ class ClientThread(threading.Thread):
             return
         out = "HTTP/1.0 %s\r\n" % res["code"]
         out += "Content-Type: %s\r\n\r\n" % res["ctype"]
-        out += "%s" % res["html"]
-        try:
-            self.socket.send(out.encode('utf-8'))
-        except:
-            self.socket.send(out)
+        # Handle binary data (images)
+        if isinstance(res["html"], bytes):
+            try:
+                self.socket.send(out.encode('utf-8'))
+                self.socket.send(res["html"])
+            except:
+                self.socket.send(out)
+                self.socket.send(res["html"])
+        else:
+            out += "%s" % res["html"]
+            try:
+                self.socket.send(out.encode('utf-8'))
+            except:
+                self.socket.send(out)
         self.socket.close()
         if "run" in res and len(res["run"]):
             subprocess.Popen(res["run"], shell=True)
@@ -88,7 +97,37 @@ class Pages():
 
     def html_army_map(self,target=None):
         try:
-            target_js="total_zombies = "+str( int(self.file_len(self.zombies_file))+int(self.file_len(self.aliens_file))+int(self.file_len(self.droids_file))+int(self.file_len(self.ucavs_file))+int(self.file_len(self.rpcs_file))+int(self.file_len(self.ntps_file))+int(self.file_len(self.dnss_file))+int(self.file_len(self.snmps_file)) )+"\ninitMap()\n\n"
+            # Count ALL 14 botnet types
+            total = (int(self.file_len(self.zombies_file)) + int(self.file_len(self.aliens_file)) + 
+                    int(self.file_len(self.droids_file)) + int(self.file_len(self.ucavs_file)) + 
+                    int(self.file_len(self.rpcs_file)) + int(self.file_len(self.ntps_file)) + 
+                    int(self.file_len(self.dnss_file)) + int(self.file_len(self.snmps_file)))
+            # Add new botnet types
+            try:
+                total += int(self.file_len('botnet/memcacheds.txt'))
+            except:
+                pass
+            try:
+                total += int(self.file_len('botnet/ssdps.txt'))
+            except:
+                pass
+            try:
+                total += int(self.file_len('botnet/chargens.txt'))
+            except:
+                pass
+            try:
+                total += int(self.file_len('botnet/http2s.txt'))
+            except:
+                pass
+            try:
+                total += int(self.file_len('botnet/rudys.txt'))
+            except:
+                pass
+            try:
+                total += int(self.file_len('botnet/coaps.txt'))
+            except:
+                pass
+            target_js="total_zombies = "+str(total)+"\ninitMap()\n\n"
         except:
             target_js="not any zombie available\n\n"
         if target is not None:
@@ -3098,21 +3137,30 @@ Last update: <font color='"""+ self.blackholes_status_color + """'>"""+ self.bla
         self.pages = {}
         self.pages["/header"] = """<!DOCTYPE html><html>
 <head>
-<link rel="shortcut icon" type="image/x-icon" href="favicon" />
-<meta name="author" content="psy">
+<link rel="shortcut icon" type="image/jpeg" href="/cbt.jpg" />
+<link rel="icon" type="image/jpeg" href="/cbt.jpg" />
+<meta name="author" content="CBT">
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="content-type" content="text/xml; charset=utf-8" /> 
-<title>UFONet - [ C&C/DarkNet ]</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT - Core Brim Tech [ C&C/DarkNet ]</title>
+<link rel="stylesheet" href="/js/modern.css" />
 <script language="javascript" src="/lib.js"></script>
 <script language="javascript" src="js/stars.js"></script>
+<script language="javascript" src="/js/jquery-1.10.2.min.js"></script>
 <style>
-body{font-size:15px}a,a:hover{outline:none;color:red;font-size:14px;font-weight:700}nav ul ul{display:none}nav ul li:hover > ul{display:block}nav ul{list-style:none;position:relative;display:inline-table}nav ul:after{content:"";clear:both;display:block}nav ul li{font-size:12px}nav ul li a{display:block;padding:2px 3px}html,body{height:100%}ul,li{margin:0;padding:0}.ringMenu{width:100px;margin:80px auto}.ringMenu ul{list-style:none;position:relative;width:100px;color:#fff}.ringMenu ul a{color:#fff}.ringMenu ul li{-webkit-transition:all .3s ease-in-out;-moz-transition:all .3s ease-in-out;-o-transition:all .3s ease-in-out;transition:all .3s ease-in-out}.ringMenu ul li a{display:block;width:100px;height:100px;background:rgba(50,50,50,0.7);text-align:center;line-height:100px;-webkit-border-radius:50px;-moz-border-radius:50px;border-radius:50px}.ringMenu ul li a:hover{background:rgba(230,150,20,0.7)}.ringMenu ul li:not(.main){-webkit-transform:rotate(-180deg) scale(0);-moz-transform:rotate(-180deg) scale(0);-o-transform:rotate(-180deg) scale(0);transform:rotate(-180deg) scale(0);opacity:0}.ringMenu:hover ul li{-webkit-transform:rotate(0) scale(1);-moz-transform:rotate(0) scale(1);-o-transform:rotate(0) scale(1);transform:rotate(0) scale(1);opacity:1}.ringMenu ul li.top{-webkit-transform-origin:50% 152px;-moz-transform-origin:50% 152px;-o-transform-origin:50% 152px;transform-origin:50% 152px;position:absolute;top:-102px;left:0}.ringMenu ul li.bottom{-webkit-transform-origin:50% -52px;-moz-transform-origin:50% -52px;-o-transform-origin:50% -52px;transform-origin:50% -52px;position:absolute;bottom:-102px;left:0}.ringMenu ul li.right{-webkit-transform-origin:-52px 50%;-moz-transform-origin:-52px 50%;-o-transform-origin:-52px 50%;transform-origin:-52px 50%;position:absolute;top:0;right:-102px}.ringMenu ul li.left{-webkit-transform-origin:152px 50%;-moz-transform-origin:152px 50%;-o-transform-origin:152px 50%;transform-origin:152px 50%;position:absolute;top:0;left:-102px}textarea{padding:30px 0}
+/* Legacy compatibility styles */
+body.legacy{font-size:15px}a,a:hover{outline:none;color:red;font-size:14px;font-weight:700}nav ul ul{display:none}nav ul li:hover > ul{display:block}nav ul{list-style:none;position:relative;display:inline-table}nav ul:after{content:"";clear:both;display:block}nav ul li{font-size:12px}nav ul li a{display:block;padding:2px 3px}html,body{height:100%}ul,li{margin:0;padding:0}.ringMenu{width:100px;margin:80px auto}.ringMenu ul{list-style:none;position:relative;width:100px;color:#fff}.ringMenu ul a{color:#fff}.ringMenu ul li{-webkit-transition:all .3s ease-in-out;-moz-transition:all .3s ease-in-out;-o-transition:all .3s ease-in-out;transition:all .3s ease-in-out}.ringMenu ul li a{display:block;width:100px;height:100px;background:rgba(50,50,50,0.7);text-align:center;line-height:100px;-webkit-border-radius:50px;-moz-border-radius:50px;border-radius:50px}.ringMenu ul li a:hover{background:rgba(230,150,20,0.7)}.ringMenu ul li:not(.main){-webkit-transform:rotate(-180deg) scale(0);-moz-transform:rotate(-180deg) scale(0);-o-transform:rotate(-180deg) scale(0);transform:rotate(-180deg) scale(0);opacity:0}.ringMenu:hover ul li{-webkit-transform:rotate(0) scale(1);-moz-transform:rotate(0) scale(1);-o-transform:rotate(0) scale(1);transform:rotate(0) scale(1);opacity:1}.ringMenu ul li.top{-webkit-transform-origin:50% 152px;-moz-transform-origin:50% 152px;-o-transform-origin:50% 152px;transform-origin:50% 152px;position:absolute;top:-102px;left:0}.ringMenu ul li.bottom{-webkit-transform-origin:50% -52px;-moz-transform-origin:50% -52px;-o-transform-origin:50% -52px;transform-origin:50% -52px;position:absolute;bottom:-102px;left:0}.ringMenu ul li.right{-webkit-transform-origin:-52px 50%;-moz-transform-origin:-52px 50%;-o-transform-origin:-52px 50%;transform-origin:-52px 50%;position:absolute;top:0;right:-102px}.ringMenu ul li.left{-webkit-transform-origin:152px 50%;-moz-transform-origin:152px 50%;-o-transform-origin:152px 50%;transform-origin:152px 50%;position:absolute;top:0;left:-102px}textarea{padding:30px 0}
 </style>"""
         self.pages["/footer"] = """</center></body>
 </html>
 """
         self.pages["/"] = self.pages["/header"] + """<script language="javascript">
       function Start() {
+        // Redirect to modern dashboard
+        window.location.href = "/dashboard";
+      }
+      function StartLegacy() {
         var win_start = window.open("gui","_parent","fullscreen=yes, titlebar=yes, top=180, left=320, width=640, height=460, resizable=yes", false);
       }
 </script>
@@ -4180,7 +4228,14 @@ function runCommandX(cmd,params) {
 									cmd=s[0]
 									params=s[1]
 								}
-                                document.getElementById("cmdOut").innerHTML = xmlhttp.responseText;
+                                var cmdOut = document.getElementById("cmdOut");
+                                var cmdOutContent = document.getElementById("cmdOutContent");
+                                if (cmdOutContent) {
+                                    cmdOutContent.innerHTML = xmlhttp.responseText;
+                                    if (cmdOut) cmdOut.style.display = 'block';
+                                } else if (cmdOut) {
+                                    cmdOut.innerHTML = xmlhttp.responseText;
+                                }
                                 //document.getElementById("cmdOut").scrollIntoView();
                                 newcmd=cmd
                                 if(newcmd=="cmd_list_army"||newcmd=="cmd_list_nodes"||newcmd=="cmd_view_army"||newcmd=="cmd_list_zombies"||newcmd=="cmd_list_aliens"|| newcmd=="cmd_list_droids"||newcmd=="cmd_list_ucavs"||newcmd=="cmd_list_rpcs"||newcmd=="cmd_view_changelog"){ //do not refresh listing army
@@ -4380,7 +4435,55 @@ function runCommandX(cmd,params) {
                      f=open("core/"+page[1:],'rb') # ajax map related
                      data = f.read()
                      self.pages[page]=data
-            elif page == "/js/ajax.js":
+        # Serve logo image
+        if page == "/cbt.jpg" or page == "/cbt.jpeg":
+            if os.path.exists("cbt.jpg"):
+                try:
+                    f = open("cbt.jpg", 'rb')
+                    data = f.read()
+                    f.close()
+                    self.pages[page] = data
+                except:
+                    pass
+        # Handle dashboard routes
+        if page == "/dashboard" or page == "/dashboard/":
+            from .webgui_dashboard import ModernDashboard
+            dashboard = ModernDashboard(self)
+            self.pages["/dashboard"] = dashboard.html_dashboard()
+            if page == "/dashboard/":
+                self.pages["/dashboard/"] = dashboard.html_dashboard()
+        elif page.startswith("/dashboard/"):
+            from .webgui_dashboard import ModernDashboard
+            dashboard = ModernDashboard(self)
+            if page == "/dashboard/home":
+                self.pages[page] = dashboard.dashboard_home()
+            elif page == "/dashboard/attack":
+                self.pages[page] = dashboard.dashboard_attack()
+            elif page == "/dashboard/botnet":
+                self.pages[page] = dashboard.dashboard_botnet()
+            elif page == "/dashboard/intelligence":
+                self.pages[page] = dashboard.dashboard_intelligence()
+            elif page == "/dashboard/ai":
+                self.pages[page] = dashboard.dashboard_ai()
+            elif page == "/dashboard/c2":
+                self.pages[page] = dashboard.dashboard_c2()
+            elif page == "/dashboard/cloud":
+                self.pages[page] = dashboard.dashboard_cloud()
+            elif page == "/dashboard/exploit":
+                self.pages[page] = dashboard.dashboard_exploit()
+            elif page == "/dashboard/reports":
+                self.pages[page] = dashboard.dashboard_reports()
+            elif page == "/dashboard/stats":
+                import json
+                stats = {
+                    "total_botnet": self.total_botnet,
+                    "active_attacks": "0",
+                    "success_rate": "0%"
+                }
+                self.pages[page] = json.dumps(stats)
+            else:
+                self.pages[page] = dashboard.html_dashboard()
+        if page == "/js/ajax.js":
                 from .ajaxmap import AjaxMap
                 self.pages[page] = AjaxMap().ajax(pGet)
         if page == "/cmd_check_tool":
@@ -8240,6 +8343,12 @@ function runCommandX(cmd,params) {
             self.pages["/exploit"] = self.html_exploit()
         if page == "/reports":
             self.pages["/reports"] = self.html_reports()
+        if page == "/dashboard" or page == "/dashboard/":
+            from .webgui_dashboard import ModernDashboard
+            dashboard = ModernDashboard(self)
+            self.pages["/dashboard"] = dashboard.html_dashboard()
+            if page == "/dashboard/":
+                self.pages["/dashboard/"] = dashboard.html_dashboard()
         if page == "/cmd_intelligence":
             self.pages["/cmd_intelligence"] = "<pre>Gathering intelligence...</pre>"
             target = pGet.get("target", "")
@@ -8323,9 +8432,14 @@ function runCommandX(cmd,params) {
             ctype = "image/x-icon"
         elif page.find(".png") != -1:
             ctype = "image/png"
+        elif page.find(".jpg") != -1 or page.find(".jpeg") != -1:
+            ctype = "image/jpeg"
         elif page.find(".css") != -1:
             ctype = "text/css"
         if page in self.pages:
+            # Handle binary data (images)
+            if isinstance(self.pages[page], bytes):
+                return dict(run=runcmd, code="200 OK", html=self.pages[page], ctype=ctype)
             return dict(run=runcmd, code="200 OK", html=self.pages[page], ctype=ctype)
         return dict(run=runcmd, code="404 Error", html="404 Error<br><br>Page not found...", ctype=ctype)
 

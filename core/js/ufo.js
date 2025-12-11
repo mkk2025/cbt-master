@@ -277,6 +277,10 @@ function  Herd(){
 	}
     }
     this.add = function(name,data){
+	// Ensure botnet_type is set
+	if (!data[7]) {
+	    data[7] = 'zombie'  // default type
+	}
 	var ufoe=this.find(name)
 	if(!ufoe){
 	    ufoe=new zombieEntry(name,data)
@@ -319,7 +323,11 @@ function zombie_detail(data=''){
     $('#zombie_detail').html(t)
 }
 
-// watchdog function
+// Error tracking for failed GeoIP lookups
+var failed_attempts = {}
+var max_retries = 3
+
+// watchdog function - optimized to prevent blocking
 function ufowatch(){
     // if attack mode we have a doll, and do a check if herd is done and bail if so
     // if herd is not done, get stats
@@ -337,16 +345,56 @@ function ufowatch(){
     d=new Date
     var lw=d.getTime()
     error=''
+    // Optimized: Use requestAnimationFrame to prevent blocking the UI
     // basic check to prevent overload - relies on AJAX_DELAY variable
     if(last_watch < lw - AJAX_DELAY){
 	last_watch=lw
-	// loading next zombie
-	$(".ufo_error_div").load('/js/ajax.js?zombie='+btoa(unescape(encodeURIComponent(last_zombie))))
+	// Use requestAnimationFrame to load markers without blocking
+	requestAnimationFrame(function() {
+	    // loading next zombie with proper error handling
+	    try {
+		$(".ufo_error_div").load('/js/ajax.js?zombie='+btoa(unescape(encodeURIComponent(last_zombie))), 
+		    function(response, status) {
+			if (status === "error") {
+			    // Track failed attempts
+			    if (!failed_attempts[last_zombie]) {
+				failed_attempts[last_zombie] = 0
+			    }
+			    failed_attempts[last_zombie]++
+			    // After max retries, mark as dead
+			    if (failed_attempts[last_zombie] >= max_retries) {
+				if (dead_zombies.indexOf(last_zombie) === -1) {
+				    dead_zombies.push(last_zombie)
+				}
+			    }
+			}
+		    })
+	    } catch(e) {
+		console.error('Error loading zombie:', e)
+		if (dead_zombies.indexOf(last_zombie) === -1) {
+		    dead_zombies.push(last_zombie)
+		}
+	    }
+	})
 	label=Zombies.count()+"/"+total_zombies
 	if (Zombies.count()== total_zombies)
 	    label = total_zombies
 	else
 	    if (Zombies.count() +dead_zombies.length== total_zombies){
+		label=total_zombies
+		if(dead_zombies.length>0){
+		    label=total_zombies -dead_zombies.length
+		    $('.ufo_error_div').html('<div id="ufo_error_div">To be discarded : <br/><ul>'
+					     +dead_zombies.join("<li> -")+'</ul></div>')
+		    error = "<a href='#' onclick='show_error()'> + "+dead_zombies.length+" not listed...</a>"
+		}
+		zdone=true
+		ufomsg('[Info] [AI] [Control] All zombies deployed! -> [OK!]')
+	    }
+	$(".ufo_title_div").html('<div id="status"><center><h2><font color="red">Zombies:</font></h2><h3><font color="green" size="9px"><b>'+label+'</b></font></h3>'+error+'</center></div>');
+    }
+}
+
 		label=total_zombies
 		if(dead_zombies.length>0){
 		    label=total_zombies -dead_zombies.length

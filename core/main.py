@@ -5207,6 +5207,102 @@ class UFONet(object):
                 print("[Info] [AI] [Control] Cannot found [SNMPs] from: 'botnet/snmp.txt' [Discarding!]")
                 return
 
+    def extract_memcacheds(self):
+        # extract memcacheds from file
+        options = self.options
+        try:
+            if os.path.exists(self.memcacheds_file):
+                f = open(self.memcacheds_file)
+                memcacheds = f.readlines()
+                memcacheds = [ m.replace('\r','') for m in memcacheds ]
+                memcacheds = [ m.replace('\n','') for m in memcacheds ]
+                memcacheds = [ m for m in memcacheds if m and not m.startswith('#') ]
+                f.close()
+                return memcacheds if memcacheds else []
+            return []
+        except:
+            return []
+
+    def extract_ssdps(self):
+        # extract ssdps from file
+        options = self.options
+        try:
+            if os.path.exists(self.ssdps_file):
+                f = open(self.ssdps_file)
+                ssdps = f.readlines()
+                ssdps = [ s.replace('\r','') for s in ssdps ]
+                ssdps = [ s.replace('\n','') for s in ssdps ]
+                ssdps = [ s for s in ssdps if s and not s.startswith('#') ]
+                f.close()
+                return ssdps if ssdps else []
+            return []
+        except:
+            return []
+
+    def extract_chargens(self):
+        # extract chargens from file
+        options = self.options
+        try:
+            if os.path.exists(self.chargens_file):
+                f = open(self.chargens_file)
+                chargens = f.readlines()
+                chargens = [ c.replace('\r','') for c in chargens ]
+                chargens = [ c.replace('\n','') for c in chargens ]
+                chargens = [ c for c in chargens if c and not c.startswith('#') ]
+                f.close()
+                return chargens if chargens else []
+            return []
+        except:
+            return []
+
+    def extract_http2s(self):
+        # extract http2s from file
+        options = self.options
+        try:
+            if os.path.exists(self.http2s_file):
+                f = open(self.http2s_file)
+                http2s = f.readlines()
+                http2s = [ h.replace('\r','') for h in http2s ]
+                http2s = [ h.replace('\n','') for h in http2s ]
+                http2s = [ h for h in http2s if h and not h.startswith('#') ]
+                f.close()
+                return http2s if http2s else []
+            return []
+        except:
+            return []
+
+    def extract_rudys(self):
+        # extract rudys from file
+        options = self.options
+        try:
+            if os.path.exists(self.rudys_file):
+                f = open(self.rudys_file)
+                rudys = f.readlines()
+                rudys = [ r.replace('\r','') for r in rudys ]
+                rudys = [ r.replace('\n','') for r in rudys ]
+                rudys = [ r for r in rudys if r and not r.startswith('#') ]
+                f.close()
+                return rudys if rudys else []
+            return []
+        except:
+            return []
+
+    def extract_coaps(self):
+        # extract coaps from file
+        options = self.options
+        try:
+            if os.path.exists(self.coaps_file):
+                f = open(self.coaps_file)
+                coaps = f.readlines()
+                coaps = [ c.replace('\r','') for c in coaps ]
+                coaps = [ c.replace('\n','') for c in coaps ]
+                coaps = [ c for c in coaps if c and not c.startswith('#') ]
+                f.close()
+                return coaps if coaps else []
+            return []
+        except:
+            return []
+
     def extract_zombies(self):
         options = self.options
         if self.options.test:

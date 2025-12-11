@@ -29,17 +29,96 @@ class AjaxMap(object):
         self._err=''
         ufonet = UFONet()
         ufonet.create_options()
+        # Track botnet types by source
+        self.botnet_types = {}  # Map botnet URL to type
         try:
-            self.zombies = ufonet.extract_zombies()
-            aliens_army = ufonet.extract_aliens()
-            droids_army = ufonet.extract_droids()
-            ucavs_army = ufonet.extract_ucavs()
-            rpcs_army = ufonet.extract_rpcs()
+            self.zombies = ufonet.extract_zombies() or []
+            for z in self.zombies:
+                self.botnet_types[z] = 'zombie'
+            
+            aliens_army = ufonet.extract_aliens() or []
+            for a in aliens_army:
+                self.botnet_types[a] = 'alien'
+            
+            droids_army = ufonet.extract_droids() or []
+            for d in droids_army:
+                self.botnet_types[d] = 'droid'
+            
+            ucavs_army = ufonet.extract_ucavs() or []
+            for u in ucavs_army:
+                self.botnet_types[u] = 'ucav'
+            
+            rpcs_army = ufonet.extract_rpcs() or []
+            for r in rpcs_army:
+                self.botnet_types[r] = 'rpc'
+            
+            ntps_army = ufonet.extract_ntps() or []
+            for n in ntps_army:
+                self.botnet_types[n] = 'ntp'
+            
+            dnss_army = ufonet.extract_dnss() or []
+            for d in dnss_army:
+                self.botnet_types[d] = 'dns'
+            
+            snmps_army = ufonet.extract_snmps() or []
+            for s in snmps_army:
+                self.botnet_types[s] = 'snmp'
+            
+            # New botnet types
+            try:
+                memcacheds_army = ufonet.extract_memcacheds() or []
+                for m in memcacheds_army:
+                    self.botnet_types[m] = 'memcached'
+            except:
+                memcacheds_army = []
+            try:
+                ssdps_army = ufonet.extract_ssdps() or []
+                for s in ssdps_army:
+                    self.botnet_types[s] = 'ssdp'
+            except:
+                ssdps_army = []
+            try:
+                chargens_army = ufonet.extract_chargens() or []
+                for c in chargens_army:
+                    self.botnet_types[c] = 'chargen'
+            except:
+                chargens_army = []
+            try:
+                http2s_army = ufonet.extract_http2s() or []
+                for h in http2s_army:
+                    self.botnet_types[h] = 'http2'
+            except:
+                http2s_army = []
+            try:
+                rudys_army = ufonet.extract_rudys() or []
+                for r in rudys_army:
+                    self.botnet_types[r] = 'rudy'
+            except:
+                rudys_army = []
+            try:
+                coaps_army = ufonet.extract_coaps() or []
+                for c in coaps_army:
+                    self.botnet_types[c] = 'coap'
+            except:
+                coaps_army = []
+            
             self.zombies.extend(aliens_army)
             self.zombies.extend(droids_army)
             self.zombies.extend(ucavs_army)
             self.zombies.extend(rpcs_army)
-        except:
+            self.zombies.extend(ntps_army)
+            self.zombies.extend(dnss_army)
+            self.zombies.extend(snmps_army)
+            self.zombies.extend(memcacheds_army)
+            self.zombies.extend(ssdps_army)
+            self.zombies.extend(chargens_army)
+            self.zombies.extend(http2s_army)
+            self.zombies.extend(rudys_army)
+            self.zombies.extend(coaps_army)
+        except Exception as e:
+            print(f"[Error] [AI] Failed to extract botnets: {e}")
+            import traceback
+            traceback.print_exc()
             return
 
     def get_err(self):
@@ -154,15 +233,25 @@ class AjaxMap(object):
                 geo_zombie['ip'] = ip
                 try:
                     record = self._geoip.record_by_addr(ip)
-                except:
-                    self._err= "ufomsg('<font color='yellow'>[Error] [AI] </font> GeoIP: lookup failed for "+ip+", page reload required...')"
-                    return None
+                except Exception as e:
+                    # Better error handling - don't fail completely, use defaults
+                    self._err= "ufomsg('<font color='yellow'>[Warning] [AI] </font> GeoIP: lookup failed for "+ip+", using defaults...')"
+                    # Set default location (middle of ocean) instead of failing
+                    geo_zombie['latitude'] = 0.0
+                    geo_zombie['longitude'] = 0.0
+                    geo_zombie['city'] = 'Unknown'
+                    geo_zombie['country'] = 'Unknown'
+                    geo_zombie['country_code'] = 'XX'
+                    return geo_zombie  # Return with defaults instead of None
                 try:
                     asn = self._geoasn.org_by_addr(ip)
                     if asn is not None:
                         geo_zombie['asn'] = asn
-                except:
-                    geo_zombie['asn'] = 'No ASN provided'
+                    else:
+                        geo_zombie['asn'] = 'No ASN provided'
+                except Exception as e:
+                    # Don't fail on ASN lookup errors
+                    geo_zombie['asn'] = 'ASN lookup failed'
                 try:
                     geo_zombie['host_name'] = socket.gethostbyaddr(ip)[0]
                 except:
@@ -188,13 +277,35 @@ class AjaxMap(object):
     # generates javascript for adding a new zombie with geoip data
     def get_js(self,z):
         ret = ""
-        gz = self.geo_ip(z)
-        if gz is not None and gz['latitude']!= '-':
-            ret = "Zombies.add('"+str(z)+"',Array(new L.LatLng("+str(gz['latitude'])+","+str(gz['longitude'])+"),'"+str(gz['city'])+"','"+str(gz['country'])+"','"+str(gz['country_code'])+"','"+str(gz['asn'])+"','"+str(gz['ip'])+"','"+str(gz['host_name'])+"'))\n"
-        else:
+        try:
+            gz = self.geo_ip(z)
+            # Proper error handling - check if geoip returned valid data
+            if gz is not None and gz.get('latitude') != '-' and gz.get('latitude') is not None:
+                # Escape single quotes in strings to prevent JS errors
+                city = str(gz.get('city', '-')).replace("'", "\\'")
+                country = str(gz.get('country', '-')).replace("'", "\\'")
+                country_code = str(gz.get('country_code', '-')).replace("'", "\\'")
+                asn = str(gz.get('asn', '-')).replace("'", "\\'")
+                ip = str(gz.get('ip', '-')).replace("'", "\\'")
+                host_name = str(gz.get('host_name', '-')).replace("'", "\\'")
+                
+                # Determine botnet type for different marker colors
+                botnet_type = self.determine_botnet_type(z)
+                ret = "Zombies.add('"+str(z)+"',Array(new L.LatLng("+str(gz['latitude'])+","+str(gz['longitude'])+"),'"+city+"','"+country+"','"+country_code+"','"+asn+"','"+ip+"','"+host_name+"','"+botnet_type+"'))\n"
+            else:
+                # GeoIP failed but don't block - mark as dead
+                ret += "dead_zombies.push('"+z+"')\n"
+        except Exception as e:
+            # Catch any errors and mark as dead instead of crashing
             ret += "dead_zombies.push('"+z+"')\n"
+            print(f"[Warning] [AI] Failed to get GeoIP for {z}: {e}")
         ret += "last_zombie = '"+z+"'\n"
         return ret
+    
+    def determine_botnet_type(self, z):
+        """Determine botnet type from tracked source"""
+        # Use tracked type from source file
+        return self.botnet_types.get(z, 'zombie')  # default to zombie if not found
 
     # fetches next zombie from list (using all types of zombies)
     def get_next_zombie(self,name):
@@ -234,22 +345,43 @@ class AjaxMap(object):
             zn=base64.b64decode(pGet['zombie']).decode('utf-8')
             nzn=self.get_next_zombie(zn)
             if nzn is not None:
-                zombie=self.get_js(nzn)
-                return """ <script>
-                """+str(zombie)+"""
-                ufomsg('[Info] [AI] [Control] Adding zombie: """+str(nzn)+"""...')
-                </script>"""
+                try:
+                    zombie=self.get_js(nzn)
+                    if zombie:
+                        return " <script>\n"+str(zombie)+"\nufomsg('[Info] [AI] [Control] Adding zombie: "+str(nzn)+"...')\n</script>"
+                    else:
+                        # GeoIP lookup failed, skip this zombie
+                        return "<script>ufomsg('[Warning] [AI] [Control] Skipping zombie: "+str(nzn)+" (GeoIP failed)')</script>"
+                except Exception as e:
+                    # Proper error handling
+                    error_msg = str(e).replace("'", "\\'")
+                    return "<script>ufomsg('[Error] [AI] [Control] Failed to load zombie: "+str(nzn)+" - "+error_msg+"')</script>"
             else:
                 return "<script>zdone=true\nufomsg('[Info] [AI] [Control] All zombies deployed! -> [OK!]')\n </script>\n"
+        # Batch loading support
+        if 'batch_zombies' in list(pGet.keys()):
+            try:
+                batch_data = json.loads(base64.b64decode(pGet['batch_zombies']).decode('utf-8'))
+                results = []
+                for zn in batch_data:
+                    try:
+                        zombie_js = self.get_js(zn)
+                        if zombie_js:
+                            results.append(zombie_js)
+                    except:
+                        continue
+                if results:
+                    return "<script>" + "\n".join(results) + "</script>"
+                return "<script>ufomsg('[Info] [AI] [Control] Batch processed')</script>"
+            except Exception as e:
+                return "<script>ufomsg('[Error] [AI] [Control] Batch processing failed: " + str(e) + "')</script>"
         if 'fetchdoll' in list(pGet.keys()):
             tn=pGet['fetchdoll']
             target = self.geo_ip(tn)
             if target is None:
                 return "doll waiting for geoip data !"
-            return """ doll up !<script>
-doll.setData(Array(new L.LatLng("""+str(target['latitude'])+","+str(target['longitude'])+"),'"+target['city']+"','"+target['country']+"','"+target['country_code']+"','"+target['asn']+"','"+target['ip']+"','"+target['host_name']+"'))\nufomsg('[Info] Adding target: """+tn+"""...')\ndoll.show() </script>"""
+            return " doll up !<script>\ndoll.setData(Array(new L.LatLng("+str(target['latitude'])+","+str(target['longitude'])+"),'"+target['city']+"','"+target['country']+"','"+target['country_code']+"','"+target['asn']+"','"+target['ip']+"','"+target['host_name']+"'))\nufomsg('[Info] Adding target: "+tn+"...')\ndoll.show() </script>"
         if 'doll' in list(pGet.keys()):
             tn=pGet['doll']
-            return """<script>
-doll=new Doll('"""+tn+"""')\n</script>"""
+            return "<script>\ndoll=new Doll('"+tn+"')\n</script>"
         return "\n"
