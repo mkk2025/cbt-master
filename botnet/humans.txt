@@ -12662,3 +12662,9 @@ https://encode-decode.com/urlencode-decode-online/redirect/?url=
 https://dtools.app/urlencodedecoderedir_url=
 https://www.tutorialspoint.com/http/http_url_encoding.htmlogin_page.php?return=
 https://github.com/mantisbt/mantisbt/blob/7055731d09ff12b2781410a372f790172e279744/login_page.phplogin_page.php?return=
+https://validator.w3.org/checklink?uri=
+
+https://encode-decode.com/urlencode-decode-online/redirect/?url=
+https://dtools.app/urlencodedecoderedir_url=
+https://www.tutorialspoint.com/http/http_url_encoding.htmlogin_page.php?return=
+https://github.com/mantisbt/mantisbt/blob/7055731d09ff12b2781410a372f790172e279744/login_page.phplogin_page.php?return=
