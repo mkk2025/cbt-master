@@ -1,4 +1,8 @@
-  ![CBT](https://www.corebrimtech.com/cbt/cbt-welcome_small.png "CBT Welcome")
+<div align="center">
+  <img src="./cbt.jpg" alt="CBT - Core Brim Tech" width="500">
+  <h1>CBT - Core Brim Tech</h1>
+  <p><strong>Denial of Service Toolkit | C&C/DarkNet</strong></p>
+</div>
 
 ----------
 
