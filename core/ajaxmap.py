@@ -248,7 +248,7 @@ class AjaxMap(object):
                     if asn is not None:
                         geo_zombie['asn'] = asn
                     else:
-                        geo_zombie['asn'] = 'No ASN provided'
+                    geo_zombie['asn'] = 'No ASN provided'
                 except Exception as e:
                     # Don't fail on ASN lookup errors
                     geo_zombie['asn'] = 'ASN lookup failed'
@@ -278,7 +278,7 @@ class AjaxMap(object):
     def get_js(self,z):
         ret = ""
         try:
-            gz = self.geo_ip(z)
+        gz = self.geo_ip(z)
             # Proper error handling - check if geoip returned valid data
             if gz is not None and gz.get('latitude') != '-' and gz.get('latitude') is not None:
                 # Escape single quotes in strings to prevent JS errors
@@ -292,7 +292,7 @@ class AjaxMap(object):
                 # Determine botnet type for different marker colors
                 botnet_type = self.determine_botnet_type(z)
                 ret = "Zombies.add('"+str(z)+"',Array(new L.LatLng("+str(gz['latitude'])+","+str(gz['longitude'])+"),'"+city+"','"+country+"','"+country_code+"','"+asn+"','"+ip+"','"+host_name+"','"+botnet_type+"'))\n"
-            else:
+        else:
                 # GeoIP failed but don't block - mark as dead
                 ret += "dead_zombies.push('"+z+"')\n"
         except Exception as e:
@@ -346,7 +346,7 @@ class AjaxMap(object):
             nzn=self.get_next_zombie(zn)
             if nzn is not None:
                 try:
-                    zombie=self.get_js(nzn)
+                zombie=self.get_js(nzn)
                     if zombie:
                         return " <script>\n"+str(zombie)+"\nufomsg('[Info] [AI] [Control] Adding zombie: "+str(nzn)+"...')\n</script>"
                     else:

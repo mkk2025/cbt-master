@@ -79,11 +79,11 @@ class ClientThread(threading.Thread):
                 self.socket.send(out)
                 self.socket.send(res["html"])
         else:
-            out += "%s" % res["html"]
-            try:
-                self.socket.send(out.encode('utf-8'))
-            except:
-                self.socket.send(out)
+        out += "%s" % res["html"]
+        try:
+            self.socket.send(out.encode('utf-8'))
+        except:
+            self.socket.send(out)
         self.socket.close()
         if "run" in res and len(res["run"]):
             subprocess.Popen(res["run"], shell=True)
@@ -2262,7 +2262,7 @@ function Start(){
 </pre>
 </td></tr></table>
 <br><br><hr><br>
-   <div id="cmdOut"></div><center>""" + self.pages["/footer"]
+<div id="cmdOut"></div><center>""" + self.pages["/footer"]
 
     def html_intelligence(self):
         """Intelligence gathering page"""
